@@ -1,4 +1,4 @@
 User-agent: *
-Disallow: 
+Disallow:
 
-Sitemap: http://tapthaker.github.io/sitemap.xml 
+Sitemap: http://tapthaker.github.io/sitemap.xml
