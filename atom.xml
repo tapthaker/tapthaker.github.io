@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[Tapthaker]]></title>
+  <title><![CDATA[Stacktrace]]></title>
   <link href="http://tapthaker.github.io/atom.xml" rel="self"/>
   <link href="http://tapthaker.github.io/"/>
-  <updated>2015-03-28T20:42:38+05:30</updated>
+  <updated>2015-03-30T01:03:00+05:30</updated>
   <id>http://tapthaker.github.io/</id>
   <author>
     <name><![CDATA[Tapan Thaker]]></name>
@@ -12,5 +12,182 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Unit Testing iOS's UIViewControllers]]></title>
+    <link href="http://tapthaker.github.io/blog/2015/03/28/unit-testing-ioss-uiviewcontrollers/"/>
+    <updated>2015-03-28T20:46:47+05:30</updated>
+    <id>http://tapthaker.github.io/blog/2015/03/28/unit-testing-ioss-uiviewcontrollers</id>
+    <content type="html"><![CDATA[<blockquote><p>“All code is guilty, until proven innocent.” – Anonymous</p></blockquote>
+
+
+<p>Unit tests are one of the corner stones of software development these days. But when it comes to writing unit tests for user interaction
+like UIViewControllers we hardly write any mainly because we assume that we cannot simulate user interactions in unit tests. This post tries to
+remove this misconception and shows how easily you could write unit tests for UIViewControllers.
+For the rest of this post I will refer the UIViewController as view controller.</p>
+
+<p>Some of the things to note before you start things:</p>
+
+<ul>
+<li>The view of the view controller needs to be loaded and wired properly before you simulate any interactions.</li>
+<li>The interactions need to happen with the view elements, if on tapping the login button a selector onLoginClicked: is called then this does not mean
+that you directly call that method from you unit test. You need to simulate that click instead.</li>
+<li>For mocking &amp; stubbing objects in objective-C I highly recommend the framework <a href="http://ocmock.org/" title="Link to OCMock's official page">OCMOCK</a>.
+You can use <a href="http://cocoapods.org/">cocoapods</a> to install OCMock.</li>
+</ul>
+
+
+<h2>Example</h2>
+
+<p>Lets say we have a login view controller, which could have some simple scenarios like the following:</p>
+
+<ul>
+<li>If username &amp; password are correct then push a HomeVC.</li>
+<li>If the username or password is incorrect then show an alert.</li>
+</ul>
+
+
+<p>Lets try writing a unit test for the first scenario.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+</pre></td><td class='code'><pre><code class='objc'><span class='line'><span class="p">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">testValidLogin</span><span class="p">{</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// Setting up things</span>
+</span><span class='line'>    <span class="bp">UIStoryboard</span> <span class="o">*</span><span class="n">storyboard</span> <span class="o">=</span> <span class="p">[</span><span class="bp">UIStoryboard</span> <span class="nl">storyboardWithName</span><span class="p">:</span><span class="s">@&quot;Main&quot;</span> <span class="nl">bundle</span><span class="p">:</span><span class="nb">nil</span><span class="p">];</span>
+</span><span class='line'>    <span class="n">LoginVC</span> <span class="o">*</span><span class="n">loginVC</span> <span class="o">=</span> <span class="p">[</span><span class="n">storyboard</span> <span class="nl">instantiateViewControllerWithIdentifier</span><span class="p">:</span><span class="s">@&quot;ViewController&quot;</span><span class="p">];</span>
+</span><span class='line'>    <span class="bp">UINavigationController</span> <span class="o">*</span><span class="n">navigationController</span> <span class="o">=</span> <span class="p">[[</span><span class="bp">UINavigationController</span> <span class="n">alloc</span><span class="p">]</span><span class="nl">initWithRootViewController</span><span class="p">:</span><span class="n">loginVC</span><span class="p">];</span>
+</span><span class='line'>    <span class="kt">id</span> <span class="n">navControllerPartialMock</span> <span class="o">=</span> <span class="n">OCMPartialMock</span><span class="p">(</span><span class="n">navigationController</span><span class="p">);</span>
+</span><span class='line'>    <span class="bp">UIView</span> <span class="o">*</span><span class="n">view</span> <span class="o">=</span> <span class="n">loginVC</span><span class="p">.</span><span class="n">view</span><span class="p">;</span> <span class="c1">// Wires up the view and other outlets and then calls the viewDidLoad method.</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// Setting up expections</span>
+</span><span class='line'>    <span class="n">OCMExpect</span><span class="p">([</span><span class="n">navControllerPartialMock</span> <span class="nl">pushViewController</span><span class="p">:[</span><span class="n">OCMArg</span> <span class="n">any</span><span class="p">]</span> <span class="nl">animated</span><span class="p">:</span><span class="nb">YES</span><span class="p">]);</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// Run code under test</span>
+</span><span class='line'>    <span class="n">loginVC</span><span class="p">.</span><span class="n">textFieldUsername</span><span class="p">.</span><span class="n">text</span> <span class="o">=</span> <span class="s">@&quot;brucewayne&quot;</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">loginVC</span><span class="p">.</span><span class="n">textfieldPassword</span><span class="p">.</span><span class="n">text</span> <span class="o">=</span> <span class="s">@&quot;i am batman&quot;</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">[</span><span class="n">loginVC</span><span class="p">.</span><span class="n">buttonLogin</span> <span class="nl">sendActionsForControlEvents</span><span class="p">:</span><span class="n">UIControlEventTouchUpInside</span><span class="p">];</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// Verifying the expectations</span>
+</span><span class='line'>    <span class="n">OCMVerifyAll</span><span class="p">(</span><span class="n">navControllerPartialMock</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The test is pretty straight forward. One of the things to note is that accessing <strong>loginVC.view</strong> is necessary.
+The view property of the view controller is loaded lazily when the view is accessed for the first time.
+It is this time that iOS reads the XML present in the storyboard / xib and add&rsquo;s the views accordingly.
+Without this the IBOutlets and their parent view will be nil.</p>
+
+<p>Lets now see the implementation of our loginButtonTapped method to understand how can we test the second scenario:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='objc'><span class='line'><span class="p">-</span> <span class="p">(</span><span class="kt">IBAction</span><span class="p">)</span><span class="nf">loginButtonTapped:</span><span class="p">(</span><span class="kt">id</span><span class="p">)</span><span class="nv">sender</span> <span class="p">{</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">if</span> <span class="p">([</span><span class="nb">self</span><span class="p">.</span><span class="n">textFieldUsername</span><span class="p">.</span><span class="n">text</span> <span class="nl">isEqualToString</span><span class="p">:</span><span class="s">@&quot;brucewayne&quot;</span><span class="p">]</span> <span class="o">&amp;&amp;</span> <span class="p">[</span><span class="nb">self</span><span class="p">.</span><span class="n">textfieldPassword</span><span class="p">.</span><span class="n">text</span> <span class="nl">isEqualToString</span><span class="p">:</span><span class="s">@&quot;i am batman&quot;</span><span class="p">]</span> <span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">HomeVC</span> <span class="o">*</span><span class="n">homeViewController</span> <span class="o">=</span> <span class="p">[[</span><span class="n">HomeVC</span> <span class="n">alloc</span><span class="p">]</span><span class="n">init</span><span class="p">];</span>
+</span><span class='line'>        <span class="p">[</span><span class="nb">self</span><span class="p">.</span><span class="n">navigationController</span> <span class="nl">pushViewController</span><span class="p">:</span><span class="n">homeViewController</span> <span class="nl">animated</span><span class="p">:</span><span class="nb">YES</span><span class="p">];</span>
+</span><span class='line'>    <span class="p">}</span><span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>        <span class="p">[[[</span><span class="bp">UIAlertView</span> <span class="n">alloc</span><span class="p">]</span><span class="nl">initWithTitle</span><span class="p">:</span><span class="s">@&quot;Incorrect&quot;</span> <span class="nl">message</span><span class="p">:</span><span class="s">@&quot;Incorrect username or password&quot;</span> <span class="nl">delegate</span><span class="p">:</span><span class="nb">nil</span> <span class="nl">cancelButtonTitle</span><span class="p">:</span><span class="s">@&quot;Ok&quot;</span> <span class="nl">otherButtonTitles</span><span class="p">:</span> <span class="nb">nil</span><span class="p">]</span> <span class="n">show</span><span class="p">];</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>A test for this could be to expect a UIAlertView on the screen when you have incorrect username or password. The problem here is that
+you don&rsquo;t have the access to UIAlertView&rsquo;s object to stub it. Of course you could do dependency injection here, but it really doesn&rsquo;t make much sense mainly because the view controllers in
+iOS aren&rsquo;t initialized that way. Luckily ObjC with its message passing can do some magic at runtime, enter the world of
+<strong>method swizzling</strong>. Method swizzling is mainly about replacing a method&rsquo;s implementation with some other implementation. There is a <a href="http://nshipster.com/method-swizzling/">great post on NSHipster</a>
+about this. I will be using a 3rd party lib to swizzle methods called <a href="https://github.com/rbaumbach/Swizzlean" title="Github page for Swizzlean">Swizzlean</a>,
+its not necessary but it makes things simpler to work with. Lets now look at the test:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+</pre></td><td class='code'><pre><code class='objc'><span class='line'><span class="p">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">testInvalidLogin</span><span class="p">{</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// Setting up things</span>
+</span><span class='line'>    <span class="bp">UIStoryboard</span> <span class="o">*</span><span class="n">storyboard</span> <span class="o">=</span> <span class="p">[</span><span class="bp">UIStoryboard</span> <span class="nl">storyboardWithName</span><span class="p">:</span><span class="s">@&quot;Main&quot;</span> <span class="nl">bundle</span><span class="p">:</span><span class="nb">nil</span><span class="p">];</span>
+</span><span class='line'>    <span class="n">LoginVC</span> <span class="o">*</span><span class="n">loginVC</span> <span class="o">=</span> <span class="p">[</span><span class="n">storyboard</span> <span class="nl">instantiateViewControllerWithIdentifier</span><span class="p">:</span><span class="s">@&quot;ViewController&quot;</span><span class="p">];</span>
+</span><span class='line'>    <span class="bp">UIView</span> <span class="o">*</span><span class="n">view</span> <span class="o">=</span> <span class="n">loginVC</span><span class="p">.</span><span class="n">view</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// Method swizzling</span>
+</span><span class='line'>    <span class="k">__block</span> <span class="kt">BOOL</span> <span class="n">alertViewShown</span> <span class="o">=</span> <span class="nb">NO</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">Swizzlean</span> <span class="o">*</span><span class="n">swizzle</span> <span class="o">=</span> <span class="p">[[</span><span class="n">Swizzlean</span> <span class="n">alloc</span><span class="p">]</span> <span class="nl">initWithClassToSwizzle</span><span class="p">:[</span><span class="bp">UIAlertView</span> <span class="k">class</span><span class="p">]];</span>
+</span><span class='line'>    <span class="p">[</span><span class="n">swizzle</span> <span class="nl">swizzleInstanceMethod</span><span class="p">:</span><span class="k">@selector</span><span class="p">(</span><span class="n">show</span><span class="p">)</span> <span class="nl">withReplacementImplementation</span><span class="p">:</span><span class="o">^</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">alertViewShown</span> <span class="o">=</span> <span class="nb">YES</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}];</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// Run code under test</span>
+</span><span class='line'>    <span class="n">loginVC</span><span class="p">.</span><span class="n">textFieldUsername</span><span class="p">.</span><span class="n">text</span> <span class="o">=</span> <span class="s">@&quot;brucewayne&quot;</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">loginVC</span><span class="p">.</span><span class="n">textfieldPassword</span><span class="p">.</span><span class="n">text</span> <span class="o">=</span> <span class="s">@&quot;Why so serious?&quot;</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">[</span><span class="n">loginVC</span><span class="p">.</span><span class="n">buttonLogin</span> <span class="nl">sendActionsForControlEvents</span><span class="p">:</span><span class="n">UIControlEventTouchUpInside</span><span class="p">];</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// Asserting</span>
+</span><span class='line'>    <span class="n">XCTAssertTrue</span><span class="p">(</span><span class="n">alertViewShown</span><span class="p">,</span><span class="s">@&quot;Show show Alert View when the invalid login&quot;</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">[</span><span class="n">swizzle</span> <span class="n">resetSwizzledInstanceMethod</span><span class="p">];</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The resetSwizzledInstanceMethod is also important or it might break some other tests that you have written.Method swizzling is a
+powerful technique when you need it, but should be used sparingly.</p>
+
+<p>Unit testing is often neglected but it is, in fact, the most important level of testing, just be careful not
+to over engineer things.</p>
+]]></content>
+  </entry>
   
 </feed>

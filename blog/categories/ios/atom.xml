@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Ios | Stacktrace]]></title>
+  <link href="http://tapthaker.github.io/blog/categories/ios/atom.xml" rel="self"/>
+  <link href="http://tapthaker.github.io/"/>
+  <updated>2015-03-30T01:03:00+05:30</updated>
+  <id>http://tapthaker.github.io/</id>
+  <author>
+    <name><![CDATA[Tapan Thaker]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Unit Testing iOS's UIViewControllers]]></title>
+    <link href="http://tapthaker.github.io/blog/2015/03/28/unit-testing-ioss-uiviewcontrollers/"/>
+    <updated>2015-03-28T20:46:47+05:30</updated>
+    <id>http://tapthaker.github.io/blog/2015/03/28/unit-testing-ioss-uiviewcontrollers</id>
+    <content type="html"><![CDATA[<p><blockquote><p>“All code is guilty, until proven innocent.” – Anonymous</p></blockquote></p>
+
+<p>Unit tests are one of the corner stones of software development these days. But when it comes to writing unit tests for user interaction
+like UIViewControllers we hardly write any mainly because we assume that we cannot simulate user interactions in unit tests. This post tries to
+remove this misconception and shows how easily you could write unit tests for UIViewControllers.
+For the rest of this post I will refer the UIViewController as view controller.</p>
+
+<p>Some of the things to note before you start things:</p>
+
+<ul>
+<li>The view of the view controller needs to be loaded and wired properly before you simulate any interactions.</li>
+<li>The interactions need to happen with the view elements, if on tapping the login button a selector onLoginClicked: is called then this does not mean
+that you directly call that method from you unit test. You need to simulate that click instead.</li>
+<li>For mocking &amp; stubbing objects in objective-C I highly recommend the framework <a href="http://ocmock.org/" title="Link to OCMock's official page">OCMOCK</a>.
+You can use <a href="http://cocoapods.org/">cocoapods</a> to install OCMock.</li>
+</ul>
+
+
+<h2>Example</h2>
+
+<p>Lets say we have a login view controller, which could have some simple scenarios like the following:</p>
+
+<ul>
+<li>If username &amp; password are correct then push a HomeVC.</li>
+<li>If the username or password is incorrect then show an alert.</li>
+</ul>
+
+
+<p>Lets try writing a unit test for the first scenario.</p>
+
+<pre><code class="objc">- (void)testValidLogin{
+
+    // Setting up things
+    UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
+    LoginVC *loginVC = [storyboard instantiateViewControllerWithIdentifier:@"ViewController"];
+    UINavigationController *navigationController = [[UINavigationController alloc]initWithRootViewController:loginVC];
+    id navControllerPartialMock = OCMPartialMock(navigationController);
+    UIView *view = loginVC.view; // Wires up the view and other outlets and then calls the viewDidLoad method.
+
+
+    // Setting up expections
+    OCMExpect([navControllerPartialMock pushViewController:[OCMArg any] animated:YES]);
+
+
+    // Run code under test
+    loginVC.textFieldUsername.text = @"brucewayne";
+    loginVC.textfieldPassword.text = @"i am batman";
+    [loginVC.buttonLogin sendActionsForControlEvents:UIControlEventTouchUpInside];
+
+    // Verifying the expectations
+    OCMVerifyAll(navControllerPartialMock);
+}
+</code></pre>
+
+<p>The test is pretty straight forward. One of the things to note is that accessing <strong>loginVC.view</strong> is necessary.
+The view property of the view controller is loaded lazily when the view is accessed for the first time.
+It is this time that iOS reads the XML present in the storyboard / xib and add&rsquo;s the views accordingly.
+Without this the IBOutlets and their parent view will be nil.</p>
+
+<p>Lets now see the implementation of our loginButtonTapped method to understand how can we test the second scenario:</p>
+
+<pre><code class="objc">- (IBAction)loginButtonTapped:(id)sender {
+
+    if ([self.textFieldUsername.text isEqualToString:@"brucewayne"] &amp;&amp; [self.textfieldPassword.text isEqualToString:@"i am batman"] ) {
+        HomeVC *homeViewController = [[HomeVC alloc]init];
+        [self.navigationController pushViewController:homeViewController animated:YES];
+    }else {
+        [[[UIAlertView alloc]initWithTitle:@"Incorrect" message:@"Incorrect username or password" delegate:nil cancelButtonTitle:@"Ok" otherButtonTitles: nil] show];
+    }
+}
+</code></pre>
+
+<p>A test for this could be to expect a UIAlertView on the screen when you have incorrect username or password. The problem here is that
+you don&rsquo;t have the access to UIAlertView&rsquo;s object to stub it. Of course you could do dependency injection here, but it really doesn&rsquo;t make much sense mainly because the view controllers in
+iOS aren&rsquo;t initialized that way. Luckily ObjC with its message passing can do some magic at runtime, enter the world of
+<strong>method swizzling</strong>. Method swizzling is mainly about replacing a method&rsquo;s implementation with some other implementation. There is a <a href="http://nshipster.com/method-swizzling/">great post on NSHipster</a>
+about this. I will be using a 3rd party lib to swizzle methods called <a href="https://github.com/rbaumbach/Swizzlean" title="Github page for Swizzlean">Swizzlean</a>,
+its not necessary but it makes things simpler to work with. Lets now look at the test:</p>
+
+<pre><code class="objc">- (void)testInvalidLogin{
+
+    // Setting up things
+    UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
+    LoginVC *loginVC = [storyboard instantiateViewControllerWithIdentifier:@"ViewController"];
+    UIView *view = loginVC.view;
+
+    // Method swizzling
+    __block BOOL alertViewShown = NO;
+    Swizzlean *swizzle = [[Swizzlean alloc] initWithClassToSwizzle:[UIAlertView class]];
+    [swizzle swizzleInstanceMethod:@selector(show) withReplacementImplementation:^() {
+        alertViewShown = YES;
+    }];
+
+    // Run code under test
+    loginVC.textFieldUsername.text = @"brucewayne";
+    loginVC.textfieldPassword.text = @"Why so serious?";
+    [loginVC.buttonLogin sendActionsForControlEvents:UIControlEventTouchUpInside];
+
+    // Asserting
+    XCTAssertTrue(alertViewShown,@"Show show Alert View when the invalid login");
+    [swizzle resetSwizzledInstanceMethod];
+
+}
+</code></pre>
+
+<p>The resetSwizzledInstanceMethod is also important or it might break some other tests that you have written.Method swizzling is a
+powerful technique when you need it, but should be used sparingly.</p>
+
+<p>Unit testing is often neglected but it is, in fact, the most important level of testing, just be careful not
+to over engineer things.</p>
+]]></content>
+  </entry>
+  
+</feed>
