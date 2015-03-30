@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Ios | Stacktrace]]></title>
   <link href="http://tapthaker.github.io/blog/categories/ios/atom.xml" rel="self"/>
   <link href="http://tapthaker.github.io/"/>
-  <updated>2015-03-30T01:06:15+05:30</updated>
+  <updated>2015-03-30T07:34:28+05:30</updated>
   <id>http://tapthaker.github.io/</id>
   <author>
     <name><![CDATA[Tapan Thaker]]></name>
@@ -30,7 +30,7 @@ For the rest of this post I will refer the UIViewController as view controller.<
 <ul>
 <li>The view of the view controller needs to be loaded and wired properly before you simulate any interactions.</li>
 <li>The interactions need to happen with the view elements, if on tapping the login button a selector onLoginClicked: is called then this does not mean
-that you directly call that method from you unit test. You need to simulate that click instead.</li>
+that you directly call that method from your unit test. You need to simulate that click instead.</li>
 <li>For mocking &amp; stubbing objects in objective-C I highly recommend the framework <a href="http://ocmock.org/" title="Link to OCMock's official page">OCMOCK</a>.
 You can use <a href="http://cocoapods.org/">cocoapods</a> to install OCMock.</li>
 </ul>
@@ -74,10 +74,10 @@ You can use <a href="http://cocoapods.org/">cocoapods</a> to install OCMock.</li
 
 <p>The test is pretty straight forward. One of the things to note is that accessing <strong>loginVC.view</strong> is necessary.
 The view property of the view controller is loaded lazily when the view is accessed for the first time.
-It is this time that iOS reads the XML present in the storyboard / xib and add&rsquo;s the views accordingly.
+It is this time that iOS reads the XML present in the storyboard / xib and adds the views accordingly.
 Without this the IBOutlets and their parent view will be nil.</p>
 
-<p>Lets now see the implementation of our loginButtonTapped method to understand how can we test the second scenario:</p>
+<p>Lets now see the implementation of our loginButtonTapped method to understand how to test the second scenario:</p>
 
 <pre><code class="objc">- (IBAction)loginButtonTapped:(id)sender {
 
@@ -90,8 +90,8 @@ Without this the IBOutlets and their parent view will be nil.</p>
 }
 </code></pre>
 
-<p>A test for this could be to expect a UIAlertView on the screen when you have incorrect username or password. The problem here is that
-you don&rsquo;t have the access to UIAlertView&rsquo;s object to stub it. Of course you could do dependency injection here, but it really doesn&rsquo;t make much sense mainly because the view controllers in
+<p>A test for this could be to expect a UIAlertView on the screen when you enter incorrect username or password. The problem here is that
+you don&rsquo;t have the access to UIAlertView&rsquo;s object to stub it. Of course you could do dependency injection here, but it doesn&rsquo;t make much sense mainly because the view controllers in
 iOS aren&rsquo;t initialized that way. Luckily ObjC with its message passing can do some magic at runtime, enter the world of
 <strong>method swizzling</strong>. Method swizzling is mainly about replacing a method&rsquo;s implementation with some other implementation. There is a <a href="http://nshipster.com/method-swizzling/">great post on NSHipster</a>
 about this. I will be using a 3rd party lib to swizzle methods called <a href="https://github.com/rbaumbach/Swizzlean" title="Github page for Swizzlean">Swizzlean</a>,
