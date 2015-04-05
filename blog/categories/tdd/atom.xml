@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Tdd | Stacktrace]]></title>
   <link href="http://tapthaker.github.io/blog/categories/tdd/atom.xml" rel="self"/>
   <link href="http://tapthaker.github.io/"/>
-  <updated>2015-03-30T07:51:07+05:30</updated>
+  <updated>2015-04-05T21:02:26+05:30</updated>
   <id>http://tapthaker.github.io/</id>
   <author>
     <name><![CDATA[Tapan Thaker]]></name>
@@ -24,6 +24,9 @@
 like UIViewControllers we hardly write any mainly because we assume that we cannot simulate user interactions in unit tests. This post tries to
 remove this misconception and shows how easily you could write unit tests for UIViewControllers.
 For the rest of this post I will refer the UIViewController as view controller.</p>
+
+<!-- more -->
+
 
 <p>Some of the things to note before you start things:</p>
 
