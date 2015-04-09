@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
+    <loc>http://tapthaker.github.io/blog/2015/04/09/coredata-the-right-way-part-1</loc>
+    <lastmod>2015-04-09T22:34:33+05:30</lastmod>
+  </url>
+  <url>
     <loc>http://tapthaker.github.io/blog/2015/03/28/unit-testing-ioss-uiviewcontrollers</loc>
     <lastmod>2015-03-28T20:46:47+05:30</lastmod>
   </url>

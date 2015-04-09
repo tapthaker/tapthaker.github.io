@@ -9,7 +9,7 @@
   <meta name="author" content="Tapan Thaker">
 
   
-  <meta name="description" content="“All code is guilty, until proven innocent.” – Anonymous Unit tests are one of the corner stones of software development these days. But when it &hellip;">
+  <meta name="description" content="“Always code as if the guy who ends up maintaining your code will be a violent psychopath who knows where you live”― John Woods If you don&rsquo;t &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -117,6 +117,70 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/04/09/coredata-the-right-way-part-1">CoreData - the Right Way, Part-I</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-04-09T22:34:33+05:30'><span class='date'><span class='date-month'>Apr</span> <span class='date-day'>9</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>10:34 pm</span></time>
+        
+         | <a href="/blog/2015/04/09/coredata-the-right-way-part-1#disqus_thread">Comments</a>
+        
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><blockquote><p>“Always code as if the guy who ends up maintaining your code will be a violent psychopath who knows where you live”<br/>― John Woods</p></blockquote>
+
+
+<p>If you don&rsquo;t know what&rsquo;s CoreData you are in the wrong place. I suggest you go through <a href="https://developer.apple.com/videos/wwdc/2010/">WWDC 2010</a> video
+Mastering CoreData, before you proceed with the blog.</p>
+
+<p>CoreData is easy to start off with but difficult to master, and the generated code that Apple provides when you create a new project with
+CoreData doesn&rsquo;t help either. In the generated code project you will find methods like persistentStoreCoordinator, managedObjectContext, saveContext related to CoreData are being
+implemented by the AppDelegate, which completely violates the <a href="http://blog.8thlight.com/uncle-bob/2014/05/08/SingleReponsibilityPrinciple.html">Single Responsibility Principle</a>.
+Methods related to setting up CoreData, upgrading CoreData , creating ManagedObjectContext etc should be present in a different class. This kind of
+project is great to spike out things, but its of no use when you want to create a proper project.</p>
+
+<p>If you are not convinced with my argument, try to answer the following questions -</p>
+
+<ol>
+<li>What do you do when you want to manage 2 different CoreData database for 2 separate purposes ?</li>
+<li>How could you TDD this kind of code when everything you need is inside AppDelegate  ?</li>
+<li>Why is CoreData methods tied so tightly with something like AppDelegate ?</li>
+<li>Why the hell do you have to type cast like the below every time you want to access the context.</li>
+</ol>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='objc'><span class='line'> <span class="n">AppDelegate</span> <span class="n">appDelegate</span> <span class="o">=</span> <span class="p">(</span><span class="n">AppDelegate</span><span class="o">*</span><span class="p">)</span> <span class="p">[</span><span class="bp">UIApplication</span> <span class="n">sharedApplication</span><span class="p">].</span><span class="n">delegate</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2015/04/09/coredata-the-right-way-part-1">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
   
   
     <article>
