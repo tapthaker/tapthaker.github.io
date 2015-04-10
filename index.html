@@ -152,15 +152,15 @@ Mastering CoreData, before you proceed with the blog.</p>
 CoreData doesn&rsquo;t help either. In the generated code project you will find methods like persistentStoreCoordinator, managedObjectContext, saveContext related to CoreData are being
 implemented by the AppDelegate, which completely violates the <a href="http://blog.8thlight.com/uncle-bob/2014/05/08/SingleReponsibilityPrinciple.html">Single Responsibility Principle</a>.
 Methods related to setting up CoreData, upgrading CoreData , creating ManagedObjectContext etc should be present in a different class. This kind of
-project is great to spike out things, but its of no use when you want to create a proper project.</p>
+project is great to spike out things, but you never write this in production code.</p>
 
 <p>If you are not convinced with my argument, try to answer the following questions -</p>
 
 <ol>
-<li>What do you do when you want to manage 2 different CoreData database for 2 separate purposes ?</li>
+<li>What would you do when you want to manage 2 different CoreData databases for 2 separate purposes ?</li>
 <li>How could you TDD this kind of code when everything you need is inside AppDelegate  ?</li>
 <li>Why is CoreData methods tied so tightly with something like AppDelegate ?</li>
-<li>Why the hell do you have to type cast like the below every time you want to access the context.</li>
+<li>Why the hell do you have to type cast like the below every time you want to access the NSManagedObjectContext.</li>
 </ol>
 
 
