@@ -4,7 +4,7 @@
   <title><![CDATA[Stacktrace]]></title>
   <link href="http://tapthaker.github.io/atom.xml" rel="self"/>
   <link href="http://tapthaker.github.io/"/>
-  <updated>2015-04-10T14:22:42+05:30</updated>
+  <updated>2015-05-30T22:17:59+05:30</updated>
   <id>http://tapthaker.github.io/</id>
   <author>
     <name><![CDATA[Tapan Thaker]]></name>
@@ -12,6 +12,348 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Unit Testing iOS UIViewControllers - the Advanced Way]]></title>
+    <link href="http://tapthaker.github.io/blog/2015/05/30/unit-testing-ios-uiviewcontrollers-the-advanced-way"/>
+    <updated>2015-05-30T18:44:43+05:30</updated>
+    <id>http://tapthaker.github.io/blog/2015/05/30/unit-testing-ios-uiviewcontrollers-the-advanced-way</id>
+    <content type="html"><![CDATA[<blockquote><p>“Am I suggesting 100% test coverage? No, I’m not suggesting it. I’m demanding it. Every single line of code that you write should be tested. Period.”<br/>― Uncle Bob</p></blockquote>
+
+
+<p>I have already <a href="http://tapthaker.github.io/blog/2015/03/28/unit-testing-ioss-uiviewcontrollers/">written a post wrt this topic</a>, but after discussing with several colleagues
+I have realized that the approach I was talking about might not be scalable. The approach discussed there relies on several hacks which though <strong>cool</strong> can cause some unexpected behaviour.
+We are relying on the internal implementation of UIViewControllers which might change anytime when devs at Apple feel like. Plus that approach makes us comfortable in writing core business logic in the
+UIViewControllers instead of creating a ViewModels for them.</p>
+
+<p>The approach I am going to describe here does not necessarily apply only to UIViewControllers. It can in fact be applied to any MVC pattern implementation. The problem with the current iOS implementation is that
+the UIViewController is very tightly coupled with the UIView. So if you want to test a your logic when a particular UIButton is tapped you cannot do that without inflating the whole view hierarchy.</p>
+
+<!-- more -->
+
+
+<p>The idea is to separate the business logic from the UIViewController to something like <strong>BusinessLogicController</strong>.
+The BusinessLogicController should have no reference of UIKit, thus making the code modular and platform independent.</p>
+
+<p>The UIViewController implements the <strong>Controllable</strong> protocol which basically has a set of methods -</p>
+
+<ol>
+<li><strong>render</strong> : Called to paint something on the screen</li>
+<li><strong>getValue</strong>: Called to get the value for a particular key</li>
+<li><strong>showAlert</strong>: Optional, called to show an Alert</li>
+<li><strong>goToPage</strong>: Optional, called to navigate to another page</li>
+<li><strong>property eventable</strong>: To dispatchEvents to the BusinessLogicController</li>
+</ol>
+
+
+<p>The first 4 methods are called by the BusinessLogicController as and when required. The UIViewController
+calls the dispatchEvent when a events like button clicked occur to let the BusinessLogicController know
+about a particular event.</p>
+
+<p>The BusinessLogicController implements <strong>Eventable</strong> which has just one method namely <strong>dispatchEvent</strong> and has a reference of UIViewController in form of
+Controllable.</p>
+
+<p>Lets take the example of Login. Lets say you have to code the following scenario -</p>
+
+<ul>
+<li>When the username &amp; password are correctly entered take the user to HomeVC.</li>
+<li>If the credentials entered are incorrect display the message <em>&ldquo;Incorrect username or password&rdquo;</em>.</li>
+<li>Also, if the user exceeds 5 attempts display an alert saying <em>&ldquo;Maximum number of retries exceeded&rdquo;</em>.</li>
+</ul>
+
+
+<p><img align="center" src="http://tapthaker.github.io/images/diagrams/UnitTestingVC-advanced.png" /></p>
+
+<p>With the above criteria the LoginBusinessLogicController would look something like this -</p>
+
+<figure class='code'><figcaption><span>[LoginBusinessLogicController] (LoginBusinessLogicController.swift)</span> <a href='http://tapthaker.github.io/downloads/code/LoginBusinessLogicController.swift'>download</a></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+</pre></td><td class='code'><pre><code class='swift'><span class='line'><span class="k">import</span> <span class="n">Foundation</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nl">LoginBusinessLogicController</span><span class="p">:</span> <span class="bp">NSObject</span><span class="p">,</span><span class="n">Eventable</span><span class="p">{</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">var</span> <span class="nl">controllable</span><span class="p">:</span> <span class="n">Controllable</span><span class="o">?</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">private</span> <span class="k">var</span> <span class="n">numberOfAttempts</span> <span class="o">=</span> <span class="mi">0</span>
+</span><span class='line'>    <span class="n">private</span> <span class="k">let</span> <span class="n">MAXIMUM_NUMBER_OF_ATTEMPTS</span> <span class="o">=</span> <span class="mi">5</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">func</span> <span class="n">dispatchEvent</span><span class="p">(</span><span class="nl">eventName</span><span class="p">:</span> <span class="n">String</span><span class="o">!</span><span class="p">,</span> <span class="nl">object</span><span class="p">:</span> <span class="bp">NSObject</span><span class="o">!</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="k">switch</span><span class="p">(</span><span class="n">eventName</span><span class="p">){</span>
+</span><span class='line'>            <span class="k">case</span> <span class="s">&quot;loginButtonPressed&quot;</span><span class="o">:</span>
+</span><span class='line'>                <span class="n">checkLogin</span><span class="p">()</span>
+</span><span class='line'>            <span class="k">default</span><span class="o">:</span>
+</span><span class='line'>            <span class="n">NSLog</span><span class="p">(</span><span class="s">&quot;NO SUCH EVENT IMPLEMENTED\(eventName)&quot;</span><span class="p">)</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">func</span> <span class="n">checkLogin</span><span class="p">(){</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">if</span> <span class="n">numberOfAttempts</span> <span class="o">&lt;</span> <span class="n">MAXIMUM_NUMBER_OF_ATTEMPTS</span> <span class="p">{</span>
+</span><span class='line'>            <span class="k">let</span> <span class="n">username</span> <span class="o">=</span> <span class="n">controllable</span><span class="o">?</span><span class="p">.</span><span class="n">getValue</span><span class="p">(</span><span class="s">&quot;username&quot;</span><span class="p">)</span> <span class="kt">as</span><span class="o">!</span> <span class="n">String</span>
+</span><span class='line'>            <span class="k">let</span> <span class="n">password</span> <span class="o">=</span> <span class="n">controllable</span><span class="o">?</span><span class="p">.</span><span class="n">getValue</span><span class="p">(</span><span class="s">&quot;password&quot;</span><span class="p">)</span> <span class="kt">as</span><span class="o">!</span> <span class="n">String</span>
+</span><span class='line'>            <span class="k">if</span> <span class="n">isCorrect</span><span class="p">(</span><span class="n">username</span><span class="p">,</span> <span class="nl">password</span><span class="p">:</span> <span class="n">password</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>                <span class="n">controllable</span><span class="o">?</span><span class="p">.</span><span class="n">goToPage</span><span class="o">?</span><span class="p">(</span><span class="s">&quot;Home&quot;</span><span class="p">)</span>
+</span><span class='line'>            <span class="p">}</span><span class="k">else</span><span class="p">{</span>
+</span><span class='line'>                <span class="n">controllable</span><span class="o">?</span><span class="p">.</span><span class="n">render</span><span class="p">(</span><span class="s">&quot;message&quot;</span><span class="p">,</span> <span class="nl">value</span><span class="p">:</span><span class="s">&quot;Wrong username or password&quot;</span> <span class="p">)</span>
+</span><span class='line'>                <span class="n">numberOfAttempts</span><span class="o">++</span>
+</span><span class='line'>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>        <span class="p">}</span><span class="k">else</span><span class="p">{</span>
+</span><span class='line'>            <span class="n">controllable</span><span class="o">?</span><span class="p">.</span><span class="n">showAlert</span><span class="o">!</span><span class="p">(</span><span class="s">&quot;You have exceeded the maximum number of attempts, please try after sometime.&quot;</span><span class="p">)</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">func</span> <span class="n">isCorrect</span><span class="p">(</span><span class="nl">username</span><span class="p">:</span> <span class="n">String</span><span class="p">,</span><span class="nl">password</span><span class="p">:</span> <span class="n">String</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bool</span><span class="p">{</span>
+</span><span class='line'>        <span class="k">if</span><span class="p">(</span><span class="n">username</span> <span class="o">==</span> <span class="s">&quot;batman&quot;</span> <span class="o">&amp;&amp;</span> <span class="n">password</span> <span class="o">==</span> <span class="s">&quot;bruce&quot;</span><span class="p">){</span>
+</span><span class='line'>            <span class="k">return</span> <span class="nb">true</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">return</span> <span class="nb">false</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Notice the it conforms to the Eventable protocol, which declares the method <strong>dispatchEvent</strong>.</p>
+
+<p>To test such BusinessLogicControllers, you can create a StubbedControllable and use that to send events.
+Lets look at how we could could implement tests for this -</p>
+
+<figure class='code'><figcaption><span>[LoginBusinessLogicControllerTests] (LoginBusinessLogicControllerTests.swift)</span> <a href='http://tapthaker.github.io/downloads/code/LoginBusinessLogicControllerTests.swift'>download</a></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+</pre></td><td class='code'><pre><code class='swift'><span class='line'><span class="k">import</span> <span class="n">XCTest</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nl">LoginBusinessLogicControllerTests</span><span class="p">:</span> <span class="n">XCTestCase</span> <span class="p">{</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">var</span> <span class="nl">stubbedControllable</span><span class="p">:</span> <span class="n">StubbedControllable</span><span class="o">!</span>
+</span><span class='line'>    <span class="kr">override</span> <span class="k">func</span> <span class="n">setUp</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>        <span class="nb">super</span><span class="p">.</span><span class="n">setUp</span><span class="p">()</span>
+</span><span class='line'>        <span class="k">let</span> <span class="n">businessController</span> <span class="o">=</span> <span class="n">LoginBusinessLogicController</span><span class="p">()</span>
+</span><span class='line'>        <span class="n">stubbedControllable</span> <span class="o">=</span> <span class="n">StubbedControllable</span><span class="p">()</span>
+</span><span class='line'>        <span class="n">stubbedControllable</span><span class="p">.</span><span class="n">eventable</span> <span class="o">=</span> <span class="n">businessController</span>
+</span><span class='line'>        <span class="n">businessController</span><span class="p">.</span><span class="n">controllable</span> <span class="o">=</span> <span class="n">stubbedControllable</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">func</span> <span class="n">enterUsernameAndPassword</span><span class="p">(</span><span class="nl">username</span><span class="p">:</span> <span class="n">String</span><span class="p">,</span><span class="nl">password</span><span class="p">:</span> <span class="n">String</span><span class="p">){</span>
+</span><span class='line'>        <span class="n">stubbedControllable</span><span class="p">.</span><span class="n">stubbedGetValue</span><span class="p">.</span><span class="n">updateValue</span><span class="p">(</span><span class="n">username</span><span class="p">,</span> <span class="nl">forKey</span><span class="p">:</span> <span class="s">&quot;username&quot;</span><span class="p">)</span>
+</span><span class='line'>        <span class="n">stubbedControllable</span><span class="p">.</span><span class="n">stubbedGetValue</span><span class="p">.</span><span class="n">updateValue</span><span class="p">(</span><span class="n">password</span><span class="p">,</span> <span class="nl">forKey</span><span class="p">:</span> <span class="s">&quot;password&quot;</span><span class="p">)</span>
+</span><span class='line'>        <span class="n">stubbedControllable</span><span class="p">.</span><span class="n">dispatchEvent</span><span class="p">(</span><span class="s">&quot;loginButtonPressed&quot;</span><span class="p">,</span> <span class="nl">eventValue</span><span class="p">:</span> <span class="nb">nil</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">func</span> <span class="n">testLoginFailure</span><span class="p">(){</span>
+</span><span class='line'>        <span class="n">enterUsernameAndPassword</span><span class="p">(</span><span class="s">&quot;batman&quot;</span><span class="p">,</span> <span class="nl">password</span><span class="p">:</span> <span class="s">&quot;joker&quot;</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">let</span> <span class="n">lastMessage</span> <span class="o">=</span> <span class="n">stubbedControllable</span><span class="p">.</span><span class="n">lastRender</span><span class="p">[</span><span class="s">&quot;message&quot;</span><span class="p">]</span> <span class="kt">as</span><span class="o">!</span> <span class="n">String</span>
+</span><span class='line'>        <span class="n">XCTAssertEqual</span><span class="p">(</span><span class="n">lastMessage</span><span class="p">,</span> <span class="s">&quot;Wrong username or password&quot;</span><span class="p">,</span> <span class="s">&quot;Should render error message on incorrect password&quot;</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">func</span> <span class="n">testLoginSuccess</span><span class="p">(){</span>
+</span><span class='line'>        <span class="n">enterUsernameAndPassword</span><span class="p">(</span><span class="s">&quot;batman&quot;</span><span class="p">,</span> <span class="nl">password</span><span class="p">:</span> <span class="s">&quot;bruce&quot;</span><span class="p">)</span>
+</span><span class='line'>        <span class="n">XCTAssertEqual</span><span class="p">(</span><span class="n">stubbedControllable</span><span class="p">.</span><span class="n">lastPage</span><span class="o">!</span><span class="p">,</span> <span class="s">&quot;Home&quot;</span><span class="p">,</span> <span class="s">&quot;Should goTo Home when correct password is enterred&quot;</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">func</span> <span class="n">testMaximumNumberOfRetries</span><span class="p">(){</span>
+</span><span class='line'>        <span class="k">for</span> <span class="n">i</span> <span class="k">in</span> <span class="mf">0.</span><span class="p">.</span><span class="mf">.5</span><span class="p">{</span>
+</span><span class='line'>            <span class="n">enterUsernameAndPassword</span><span class="p">(</span><span class="s">&quot;batman&quot;</span><span class="p">,</span> <span class="nl">password</span><span class="p">:</span> <span class="s">&quot;joker&quot;</span><span class="p">)</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="n">XCTAssertEqual</span><span class="p">(</span><span class="n">stubbedControllable</span><span class="p">.</span><span class="n">lastAlert</span><span class="o">!</span><span class="p">,</span> <span class="s">&quot;You have exceeded the maximum number of attempts, please try after sometime.&quot;</span><span class="p">,</span> <span class="s">&quot;Should alert if exceeded maximum number of attempts&quot;</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Note that neither the LoginBusinessLogicController nor its test is importing the UIKit module. The code written here
+is independent of the iOS UIKit Framework which means the tests can run as a separately from the Simulator, faster in-parallel
+if need be. As a bonus you can create a new iPad-App or Mac-App with the same BusinessLogicControllers wiring them with new ViewControllers.</p>
+
+<p>I am pretty sure that by now you already have an idea of the LoginViewController&rsquo;s implementation</p>
+
+<figure class='code'><figcaption><span>[LoginViewController] (LoginViewController.swift)</span> <a href='http://tapthaker.github.io/downloads/code/LoginViewController.swift'>download</a></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+</pre></td><td class='code'><pre><code class='swift'><span class='line'><span class="k">import</span> <span class="n">UIKit</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nl">LoginViewController</span><span class="p">:</span> <span class="n">BaseViewController</span><span class="p">{</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="p">@</span><span class="kt">IBOutlet</span> <span class="k">weak</span> <span class="k">var</span> <span class="nl">labelMessage</span><span class="p">:</span> <span class="bp">UILabel</span><span class="o">!</span>
+</span><span class='line'>    <span class="p">@</span><span class="kt">IBOutlet</span> <span class="k">weak</span> <span class="k">var</span> <span class="nl">textFieldUsername</span><span class="p">:</span> <span class="bp">UITextField</span><span class="o">!</span>
+</span><span class='line'>    <span class="p">@</span><span class="kt">IBOutlet</span> <span class="k">weak</span> <span class="k">var</span> <span class="nl">textFieldPassword</span><span class="p">:</span> <span class="bp">UITextField</span><span class="o">!</span>
+</span><span class='line'>    <span class="n">required</span> <span class="k">init</span><span class="p">(</span><span class="n">coder</span> <span class="nl">aDecoder</span><span class="p">:</span> <span class="bp">NSCoder</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="nb">super</span><span class="p">.</span><span class="k">init</span><span class="p">(</span><span class="nl">coder</span><span class="p">:</span> <span class="n">aDecoder</span><span class="p">)</span>
+</span><span class='line'>        <span class="nb">self</span><span class="p">.</span><span class="n">eventable</span> <span class="o">=</span> <span class="n">LoginBusinessLogicController</span><span class="p">()</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kr">override</span> <span class="k">func</span> <span class="n">render</span><span class="p">(</span><span class="nl">key</span><span class="p">:</span> <span class="n">String</span><span class="o">!</span><span class="p">,</span> <span class="nl">value</span><span class="p">:</span> <span class="bp">NSObject</span><span class="o">!</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="k">switch</span><span class="p">(</span><span class="n">key</span><span class="p">){</span>
+</span><span class='line'>            <span class="k">case</span> <span class="s">&quot;message&quot;</span><span class="o">:</span>
+</span><span class='line'>                <span class="nb">self</span><span class="p">.</span><span class="n">labelMessage</span><span class="p">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">value</span> <span class="kt">as</span><span class="o">?</span> <span class="n">String</span>
+</span><span class='line'>            <span class="k">default</span><span class="o">:</span>
+</span><span class='line'>                <span class="nb">super</span><span class="p">.</span><span class="n">render</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="nl">value</span><span class="p">:</span> <span class="n">value</span><span class="p">)</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kr">override</span> <span class="k">func</span> <span class="n">getValue</span><span class="p">(</span><span class="nl">key</span><span class="p">:</span> <span class="n">String</span><span class="o">!</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="bp">NSObject</span> <span class="p">{</span>
+</span><span class='line'>        <span class="k">switch</span><span class="p">(</span><span class="n">key</span><span class="p">){</span>
+</span><span class='line'>        <span class="k">case</span> <span class="s">&quot;username&quot;</span><span class="o">:</span>
+</span><span class='line'>            <span class="k">return</span> <span class="nb">self</span><span class="p">.</span><span class="n">textFieldUsername</span><span class="p">.</span><span class="n">text</span>
+</span><span class='line'>        <span class="k">case</span> <span class="s">&quot;password&quot;</span><span class="o">:</span>
+</span><span class='line'>            <span class="k">return</span> <span class="nb">self</span><span class="p">.</span><span class="n">textFieldPassword</span><span class="p">.</span><span class="n">text</span>
+</span><span class='line'>        <span class="k">default</span><span class="o">:</span>
+</span><span class='line'>            <span class="k">return</span> <span class="nb">super</span><span class="p">.</span><span class="n">getValue</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kr">override</span> <span class="k">func</span> <span class="n">goToPage</span><span class="p">(</span><span class="nl">pageName</span><span class="p">:</span> <span class="n">String</span><span class="o">!</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="k">switch</span><span class="p">(</span><span class="n">pageName</span><span class="p">){</span>
+</span><span class='line'>            <span class="k">case</span> <span class="s">&quot;Home&quot;</span><span class="o">:</span>
+</span><span class='line'>                <span class="nb">self</span><span class="p">.</span><span class="n">performSegueWithIdentifier</span><span class="p">(</span><span class="s">&quot;HomeIdentifier&quot;</span><span class="p">,</span> <span class="nl">sender</span><span class="p">:</span> <span class="nb">self</span><span class="p">)</span>
+</span><span class='line'>            <span class="k">default</span><span class="o">:</span>
+</span><span class='line'>                <span class="nb">super</span><span class="p">.</span><span class="n">goToPage</span><span class="p">(</span><span class="n">pageName</span><span class="p">)</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="p">@</span><span class="kt">IBAction</span> <span class="k">func</span> <span class="n">onLoginButtonPressed</span><span class="p">(</span><span class="nl">sender</span><span class="p">:</span> <span class="n">AnyObject</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="nb">self</span><span class="p">.</span><span class="n">eventable</span><span class="o">?</span><span class="p">.</span><span class="n">dispatchEvent</span><span class="p">(</span><span class="s">&quot;loginButtonPressed&quot;</span><span class="p">,</span> <span class="nl">object</span><span class="p">:</span> <span class="nb">nil</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[CoreData - the Right Way, Part-I]]></title>

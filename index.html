@@ -9,7 +9,7 @@
   <meta name="author" content="Tapan Thaker">
 
   
-  <meta name="description" content="“Always code as if the guy who ends up maintaining your code will be a violent psychopath who knows where you live”― John Woods If you don&rsquo;t &hellip;">
+  <meta name="description" content="“Am I suggesting 100% test coverage? No, I’m not suggesting it. I’m demanding it. Every single line of code that you write should be tested. Period &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -117,6 +117,52 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/05/30/unit-testing-ios-uiviewcontrollers-the-advanced-way">Unit Testing iOS UIViewControllers - the Advanced Way</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-05-30T18:44:43+05:30'><span class='date'><span class='date-month'>May</span> <span class='date-day'>30</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>6:44 pm</span></time>
+        
+         | <a href="/blog/2015/05/30/unit-testing-ios-uiviewcontrollers-the-advanced-way#disqus_thread">Comments</a>
+        
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><blockquote><p>“Am I suggesting 100% test coverage? No, I’m not suggesting it. I’m demanding it. Every single line of code that you write should be tested. Period.”<br/>― Uncle Bob</p></blockquote>
+
+
+<p>I have already <a href="http://tapthaker.github.io/blog/2015/03/28/unit-testing-ioss-uiviewcontrollers/">written a post wrt this topic</a>, but after discussing with several colleagues
+I have realized that the approach I was talking about might not be scalable. The approach discussed there relies on several hacks which though <strong>cool</strong> can cause some unexpected behaviour.
+We are relying on the internal implementation of UIViewControllers which might change anytime when devs at Apple feel like. Plus that approach makes us comfortable in writing core business logic in the
+UIViewControllers instead of creating a ViewModels for them.</p>
+
+<p>The approach I am going to describe here does not necessarily apply only to UIViewControllers. It can in fact be applied to any MVC pattern implementation. The problem with the current iOS implementation is that
+the UIViewController is very tightly coupled with the UIView. So if you want to test a your logic when a particular UIButton is tapped you cannot do that without inflating the whole view hierarchy.</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2015/05/30/unit-testing-ios-uiviewcontrollers-the-advanced-way">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
   
   
     <article>

@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
+    <loc>http://tapthaker.github.io/blog/2015/05/30/unit-testing-ios-uiviewcontrollers-the-advanced-way</loc>
+    <lastmod>2015-05-30T18:44:43+05:30</lastmod>
+  </url>
+  <url>
     <loc>http://tapthaker.github.io/blog/2015/04/09/coredata-the-right-way-part-1</loc>
     <lastmod>2015-04-09T22:34:33+05:30</lastmod>
   </url>
@@ -25,5 +29,14 @@
   </url>
   <url>
     <loc>http://tapthaker.github.io/blog/categories/ios/</loc>
+  </url>
+  <url>
+    <loc>http://tapthaker.github.io/blog/categories/oop/</loc>
+  </url>
+  <url>
+    <loc>http://tapthaker.github.io/blog/categories/core-data/</loc>
+  </url>
+  <url>
+    <loc>http://tapthaker.github.io/blog/categories/uiviewcontrollers/</loc>
   </url>
 </urlset>
