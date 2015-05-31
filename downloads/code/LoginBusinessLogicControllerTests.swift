@@ -9,7 +9,6 @@ class LoginBusinessLogicControllerTests: XCTestCase {
         let businessController = LoginBusinessLogicController()
         stubbedControllable = StubbedControllable()
         stubbedControllable.eventable = businessController
-        businessController.controllable = stubbedControllable
     }
     
     func enterUsernameAndPassword(username: String,password: String){
