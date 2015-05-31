@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Ios | Stacktrace]]></title>
   <link href="http://tapthaker.github.io/blog/categories/ios/atom.xml" rel="self"/>
   <link href="http://tapthaker.github.io/"/>
-  <updated>2015-05-31T17:43:30+05:30</updated>
+  <updated>2015-05-31T18:01:41+05:30</updated>
   <id>http://tapthaker.github.io/</id>
   <author>
     <name><![CDATA[Tapan Thaker]]></name>
@@ -49,8 +49,13 @@ The BusinessLogicController should have no reference of UIKit, thus making the c
 calls the dispatchEvent when a events like button clicked occur to let the BusinessLogicController know
 about a particular event.</p>
 
-<p>The BusinessLogicController implements <strong>Eventable</strong> which has just one method namely <strong>dispatchEvent</strong> and has a reference of UIViewController in form of
-Controllable.</p>
+<p>The BusinessLogicController implements <strong>Eventable</strong> which has the following:</p>
+
+<ol>
+<li><strong>dispatchEvent</strong>: called when a particular event like buttonPressed occurs</li>
+<li><strong>property controllable</strong>: To call methods on the controllable whenever need be</li>
+</ol>
+
 
 <p>Lets take the example of Login. Lets say you have to code the following scenario -</p>
 
