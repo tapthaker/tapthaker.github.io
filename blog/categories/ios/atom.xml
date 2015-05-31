@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Ios | Stacktrace]]></title>
   <link href="http://tapthaker.github.io/blog/categories/ios/atom.xml" rel="self"/>
   <link href="http://tapthaker.github.io/"/>
-  <updated>2015-05-31T17:38:19+05:30</updated>
+  <updated>2015-05-31T17:43:30+05:30</updated>
   <id>http://tapthaker.github.io/</id>
   <author>
     <name><![CDATA[Tapan Thaker]]></name>
@@ -21,7 +21,7 @@
     <content type="html"><![CDATA[<p><blockquote><p>“Am I suggesting 100% test coverage? No, I’m not suggesting it. I’m demanding it. Every single line of code that you write should be tested. Period.”<br/>― Uncle Bob</p></blockquote></p>
 
 <p>I have already <a href="http://tapthaker.github.io/blog/2015/03/28/unit-testing-ioss-uiviewcontrollers/">written a post on this topic</a>, but after discussing with several colleagues
-I have realized that the approach I was talking about might not be scalable. The approach discussed there relied on several hacks like method swizzling which though <strong>cool</strong> could cause some unexpected behaviour.
+I have realized that the approach I was talking about might not be scalable. The approach discussed there relied on several hacks like <a href="http://nshipster.com/method-swizzling/">method swizzling</a> which though <strong>cool</strong> could cause some unexpected behaviour.
 We were relying on the internal implementation of UIViewControllers which might change anytime when devs at Apple feel like. Plus that approach made us comfortable in writing core business logic inside
 UIViewControllers instead of creating a ViewModels for them.</p>
 
