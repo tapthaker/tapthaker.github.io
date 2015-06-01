@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Oop | Stacktrace]]></title>
   <link href="http://tapthaker.github.io/blog/categories/oop/atom.xml" rel="self"/>
   <link href="http://tapthaker.github.io/"/>
-  <updated>2015-05-31T18:01:41+05:30</updated>
+  <updated>2015-06-01T10:14:36+05:30</updated>
   <id>http://tapthaker.github.io/</id>
   <author>
     <name><![CDATA[Tapan Thaker]]></name>
@@ -32,7 +32,9 @@ the UIViewController is very tightly coupled with the UIView. So if you want to 
 
 
 <p>The idea is to separate the business logic from the UIViewController to something like <strong>BusinessLogicController</strong>.
-The BusinessLogicController should have no reference of UIKit, thus making the code modular and platform independent.</p>
+The BusinessLogicController should have no reference of UIKit, thus making the code modular and platform independent.
+Technically speaking, this means that we aren&rsquo;t testing the UIViewControllers, instead we are moving the core business
+out of it into another layer.</p>
 
 <p>The UIViewController implements the <strong>Controllable</strong> protocol which basically has a set of methods -</p>
 
