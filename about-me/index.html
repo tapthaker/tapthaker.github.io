@@ -31,11 +31,6 @@ function readTextFile(file,onComplete)
 <style>
     body {margin: 0;}
     #out{
-      position: fixed;
-      top: 0;
-      right: 0;
-      left: 50%;
-      bottom: 0;
       overflow: auto;
       padding: 10px;
       padding-left: 20px;
@@ -45,10 +40,7 @@ function readTextFile(file,onComplete)
       line-height: 1.5em
     }
 
-    @media screen and (max-width: 1024px) {
-      #in {
-        display: none;
-      }
+    @media screen and (max-width: 900px) {
       #out {
         left: 0;
         padding-left: 10px;
@@ -64,9 +56,6 @@ function readTextFile(file,onComplete)
 
     .cm-quote { color: #90a959; font-style: italic; }
 
-    .view #in {
-      display: none;
-    }
     .view #out {
       left: 0;
       padding-left: 10px;
