@@ -32,13 +32,13 @@ Roles and responsibilities include helping the team technically & bringing in ne
 
 * _[BigShot](http://moreinfo.thebigboss.org/moreinfo/depiction.php?file=bigshotjbDp)_ is a iOS Jailbreak tweak which lets you take full screen snapshots of the app. Inception came with the need to take screenshots for visual regression in our automation suite.
 
-* _Interactive Sketch Recognition & Simulation:_ An intuitive way to recognize shapes drawn by a user on touch screen using speed vs time & curvature vs distance graphs.
+* _[Ballpoint Universe](https://itunes.apple.com/us/app/ballpoint-universe-infinite/id713253886?mt=8)_ mainly contributed by helping out the creators of the game in porting it to the iPad.
 
-* _[DebugView](https://github.com/tapthaker/DebugView):_ A way to debug view hierarchies.
+* _Interactive Sketch Recognition & Simulation:_ An intuitive way to recognize shapes drawn by a user on touch screen using speed vs time & curvature vs distance graphs.
 
 * _Steganography in MPEG videos:_ Adds stegrangraphy by manipulating motion vectors b/w frames.
 
-* _[Ballpoint Universe](https://itunes.apple.com/us/app/ballpoint-universe-infinite/id713253886?mt=8)_ mainly contributed by helping out the creators of the game in porting it to the iPad.
+* _[DebugView](https://github.com/tapthaker/DebugView):_ A way to debug view hierarchies.
 
 #### Education
 
@@ -52,5 +52,4 @@ Email: tapan.d.thaker@gmail.com<br/>
 Twitter: @tapthaker<br/>
 Github: https://github.com/tapthaker<br/>
 Blog: http://tapthaker.github.io/<br/>
-Link to this page: <br/> 
-Address: 10, Hindustan Court, Kalyani Nagar, Pune, India <br/>
+Nationality: Indian <br/>
