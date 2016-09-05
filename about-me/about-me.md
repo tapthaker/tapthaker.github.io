@@ -23,7 +23,7 @@ Roles and responsibilities include helping the team technically & bringing in ne
 
 #**iOS** #**Objective-C** #**Swift** #**UIKit** #**CoreData** #*CoreGraphics* #*CoreAnimation* #**Autolayout** #*Cocos2D* #*Jailbreak* #**EarlGrey** #*Cocoapods*
 
-#**Android** #**Java** #*Spring* #*CSharp* #*Ruby* #**Automation** #**Calabash** #**Selenium** #*Windows-Phone* #**GO-CD** #*SQL* #*Rake* #NodeJS
+#**Android** #**Java** #*Spring* #*CSharp* #*Ruby* #**Automation** #**Calabash** #**Selenium** #*Windows-Phone* #**GO-CD** #*SQL* #*Rake* #NodeJS #*Linux*
 
  #**CD/CI** #**TDD** #**Git**  #**Object-Oriented-Programming** #*Functional-Programming* 
  
