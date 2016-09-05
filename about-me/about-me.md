@@ -3,9 +3,8 @@
 ### Tapan Thaker
 _Currently, Senior Consultant @ ThoughtWorks._
 
----
-
 #### Summary
+
 An iOS expert looking for opportunities to solve complex problems with simple solutions. I have 4+ years of rich experience in Mobile technologies mainly in iOS & Android working on projects with varying challenges like scale, UX, delivery, tech-stack, reusability, and maintainability. An Agile evangelist practicing and mentoring others in TDD, Continuous Delivery & Continuous Integration. I also have a background in server side technologies. I love to clone open source projects and try to read and understand their software architecture. A strong love for hacking things and jailbreaking. Other interests include Mathematics, Artificial Intelligence, Image Processing & Computer Graphics.
 
 #### Experience
@@ -23,11 +22,8 @@ Roles and responsibilities include helping the team technically & bringing in ne
 
 #**iOS** #**Objective-C** #**Swift** #**UIKit** #**CoreData** #*CoreGraphics* #*CoreAnimation* #**Autolayout** #*Cocos2D* #*Jailbreak* #**EarlGrey** #*Cocoapods*
 
-#**Android** #**Java** #*Spring* #*CSharp* #*Ruby* #**Automation** #**Calabash** #**Selenium** #*Windows-Phone* #**GO-CD** #*SQL* #*Rake* #NodeJS #*Linux*
+#**Android** #**Java** #*Spring* #*CSharp* #*Ruby* #**Automation** #**Calabash** #**Selenium**  #*Functional-Programming*  #**Object-Oriented-Programming** #*Windows-Phone* #**GO-CD** #*SQL* #*Rake* #NodeJS #*Linux* #**CD/CI** #**TDD** #**Git**
 
- #**CD/CI** #**TDD** #**Git**  #**Object-Oriented-Programming** #*Functional-Programming* 
- 
- 
 #### Pet Projects 
 
 * _[BigShot](http://moreinfo.thebigboss.org/moreinfo/depiction.php?file=bigshotjbDp)_ is a iOS Jailbreak tweak which lets you take full-screen snapshots of the app. Inception came with the need to take screenshots for visual regression in our automation suite.
