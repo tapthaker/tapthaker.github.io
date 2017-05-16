@@ -5,7 +5,7 @@ _Currently, Senior Consultant @ ThoughtWorks._
 
 #### Summary
 
-An iOS expert looking for opportunities to solve complex problems with simple solutions. I have 4+ years of rich experience in Mobile technologies mainly in iOS & Android working on projects with varying challenges like scale, UX, delivery, tech-stack, reusability, and maintainability. An Agile evangelist practicing and mentoring others in TDD, Continuous Delivery & Continuous Integration. I also have a background in server side technologies. I love to clone open source projects and try to read and understand their software architecture. A strong love for hacking things and jailbreaking. Other interests include Mathematics, Artificial Intelligence, Image Processing & Computer Graphics.
+An iOS expert looking for opportunities to solve complex problems with simple solutions. I have 4+ years of rich experience in Mobile technologies mainly in iOS & Android working on projects with varying challenges including scale, UX, delivery, tech-stack, reusability, and maintainability. An Agile evangelist practicing and mentoring others in TDD, Continuous Delivery & Continuous Integration. I also have a background in server side technologies. I love to clone open source projects and try to read and understand their software architecture. A strong love for hacking things and jailbreaking. Other interests include Mathematics, Artificial Intelligence, Image Processing & Computer Graphics.
 
 #### Experience
 
